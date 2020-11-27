@@ -1,0 +1,19 @@
+/* antd  弹出类 组件使用的是react portal
+  无法直接用styled 覆盖样式
+  直接使用 它的属性 overlayClassName
+  然后在子级书写同名样式，达到自定义目的。
+*/
+
+.cus-popover .ant-popover-inner-content {
+  background: #f5f5f5;
+  padding: 5px 16px;
+}
+
+.cus-popover .ant-popover-inner-content>div {
+  height: 40px;
+  line-height: 40px;
+}
+
+.cus-popover .ant-popover-inner-content>div+div {
+  box-shadow: 0 -1px #e4e4e4;
+}

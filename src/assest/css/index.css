@@ -1,0 +1,36 @@
+html{
+  height: 100vh;
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+@import '~antd/dist/antd.css';
+/* 自定义全局样式 */
+.userlist-trigger:empty::after {
+  content: '点击选择';
+  color: rgb(189, 189, 189);
+}
+
+/* 覆盖antd 基本样式 */
+
+.ant-layout-content {
+  min-height: unset;
+  height: max-content;
+}
+
+/* 富文本编辑器 */
+
+.bf-container {
+  border: 1px solid #d9d9d9;
+  border-radius: 2px;
+}

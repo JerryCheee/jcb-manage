@@ -1,0 +1,3 @@
+INSERT INTO ecs_admin ([account],[addTime],[name],[password],[roleId], [DelFlag], [userhead], [lasttime], [lastIP], [remark]) VALUES ('admin','2020-06-30 12:35:43','月无情','c5cf834a484beecaad1d6f82b519248f','1', '0', NULL, '2020-06-30 16:39:47', '::1', NULL)
+INSERT INTO ecs_admin ([account],[addTime],[name],[password],[roleId], [DelFlag], [userhead], [lasttime], [lastIP], [remark]) VALUES ('wu','2020-06-30 14:37:45','月无情','c5cf834a484beecaad1d6f82b519248f','2', '0', NULL, '2020-06-30 16:39:47', '::1', NULL)
+INSERT INTO ecs_admin ([account],[addTime],[name],[password],[roleId], [DelFlag], [userhead], [lasttime], [lastIP], [remark]) VALUES ('qing','2020-06-30 16:39:47','月无情','c5cf834a484beecaad1d6f82b519248f','2', '0', NULL, '2020-06-30 16:39:47', '::1', NULL)
