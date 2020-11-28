@@ -31,12 +31,13 @@ export const serveciCommitment = [
 
 /** 门店审核-配送类型 */
 export const deliveryTypes = [
-        ['isDistribution', "快递配送", ],
-        ['isSinceLift', "买家自提", ],
-        ['isArrivePay', "物流到付", ],
-        ['isDeliveryHome', "送货上门", ],
-    ]
-    /** 审核状态 值为index */
+    ['isDistribution', "快递配送", ],
+    ['isSinceLift', "买家自提", ],
+    ['isArrivePay', "物流到付", ],
+    ['isHomeDelivery', "送货上门", ],
+]
+
+/** 审核状态 值为index */
 export const verifyStatus = ['待审核', '通过', '拒绝']
 
 /** 加盟申请类型 值为index */
