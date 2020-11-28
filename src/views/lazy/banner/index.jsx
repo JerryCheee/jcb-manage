@@ -89,7 +89,7 @@ export default function Banners() {
     },
     {
       title: '跳转类型', align: 'center', dataIndex: 'urlType', key: 'urlType',
-      filters: jumpTypes, render: t => jumpTypes.find(v => v.value === t).text
+      filters: jumpTypes, render: t => jumpTypes.find(v => v.value === t)?.text
     },
     {
       title: '操作', dataIndex: 'operation', key: 'operation', render: (_, data) => {

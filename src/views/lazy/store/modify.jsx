@@ -44,7 +44,7 @@ const rules = {
     businessHours: [{ required: true, message: "请输入营业时间" }],
     certificateNo: [{ required: true, message: "请输入身份证" }],
     certificatePics: [{ required: true, message: "请上传身份证照片" }],
-    businessLicensePic: [{ required: true, message: "请上传营业执照" }],
+    // businessLicensePic: [{ required: true, message: "请上传营业执照" }],
     businessLicense: [{ required: true, message: "请输入营业执照号" }],
     head: [{ required: true, message: "请上传门店logo" }],
     detailsPic: [{ required: true, message: "请上传门店照片" }],
@@ -187,7 +187,7 @@ export default function ModifyStore({ history, location }) {
 
             <Item label="身份证照片" name="certificatePics" rules={rules.certificatePics} valuePropName="fileList"><ImgUpload max={2} /></Item>
             <Item label="营业执照" name="businessLicensePic" rules={rules.businessLicensePic} valuePropName="fileList"><ImgUpload /></Item>
-            <Item label="营业执照号" name="businessLicense" rules={rules.businessLicense}><Input /></Item>
+            {/* <Item label="营业执照号" name="businessLicense" rules={rules.businessLicense}><Input /></Item> */}
             <Item label="门店logo" name="head" rules={rules.head} valuePropName="fileList"><ImgUpload /></Item>
             <Item label="门店照片" name="detailsPic" rules={rules.detailsPic} valuePropName="fileList"><ImgUpload multiple /></Item>
             <Row>

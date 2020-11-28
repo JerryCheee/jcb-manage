@@ -25,6 +25,7 @@ const MenuNav = ({ routes }) => {
       mode="inline"
       defaultSelectedKeys={['0']}
       theme="dark"
+      // style={{overflow: 'scroll-y',height: '90vh'}}
       openKeys={openKeys}
       onOpenChange={onOpenChange}
     >

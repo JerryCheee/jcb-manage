@@ -158,6 +158,7 @@ const BacisLayout = () => {
                 collapsedWidth="0"
                 trigger={null}
                 collapsed={collapsed}
+                style={{overflowY:'scroll'}}
             >
                 <Logo />
                 {MenuMemo}

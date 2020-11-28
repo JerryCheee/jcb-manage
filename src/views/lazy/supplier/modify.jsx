@@ -54,15 +54,15 @@ const getAddrOptions = async (next, parentId) => {
     if (res.code) return message.error(res.msg)
     next(res.data.map(convert2option))
 }
-const makeCasecaderDefoValue = async (addrIds) => {
-    let ids = addrIds.slice()
-    let parents = [undefined, ...ids.slice(0, -1)]
+ const makeCasecaderDefoValue = async (addrIds) => {
+    let ids = addrIds.split(' ')
+    let parents = [undefined, ...ids.slice(0,-1)]
     let results = await Promise.all(parents.map(parentId => geoApi.getOptions(parentId ? { parentId } : undefined)))
 
     results = results.map(v => v.data).map(s => s.map(convert2option))
-    let lv3 = results.pop()
+
     let revs = results.reverse()
-    ids.pop()
+
     let pids = ids.reverse()
 
 
@@ -72,7 +72,7 @@ const makeCasecaderDefoValue = async (addrIds) => {
         if (!t) return pre;
         t.children = pre;
         return cur;
-    }, lv3)
+    })
     return options
 }
 
@@ -103,12 +103,10 @@ export default function SupplierModify({ location, history }) {
             let res = await api.getDetail(id)
             if (res.code) return message.error(res.msg)
             let d = res.data;
-            let addrIds = d.geographicIds.split(' ').slice(1)
-            let opts = await makeCasecaderDefoValue(addrIds)
+
+            let opts = await makeCasecaderDefoValue(d.geographicIds)
             setAddrOptions(opts)
             let values = convert2values(d)
-            // values.addrIds = addrIds
-            // setTimeout( form.setFieldsValue,500,values)
             form.setFieldsValue(values)
 
         }
