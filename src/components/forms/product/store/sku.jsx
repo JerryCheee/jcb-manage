@@ -1,273 +1,313 @@
-import React, { forwardRef, useCallback, useEffect } from 'react';
+import React, { forwardRef, useCallback, useEffect } from "react";
 import { Input, Switch, Form, Button, Select, message } from "antd";
-import ImgUpload from '../../../formItem/imgUpload';
-import styled from "styled-components"
-import { debounce } from '../../../../utils/tool';
-import { makeUploadDefaultValue } from '../../../../utils/formHelp';
+import ImgUpload from "../../../formItem/imgUpload";
+import styled from "styled-components";
+import { debounce } from "../../../../utils/tool";
+import { makeUploadDefaultValue } from "../../../../utils/formHelp";
 
-
-const Item = Form.Item
-const Option = Select.Option
+const Item = Form.Item;
+const Option = Select.Option;
 const TableBox = styled.div`
-    background-color:rgba(0,0,0,.02);
-    font-size:12px;
-    padding:14px 24px;
-    .shortcut{
-        display:flex;
-        margin:14px 0;
-        &>input {
+    background-color: rgba(0, 0, 0, 0.02);
+    font-size: 12px;
+    padding: 14px 24px;
+    .shortcut {
+        display: flex;
+        margin: 14px 0;
+        & > input {
             max-width: 90px;
         }
-        &>.ant-select {
+        & > .ant-select {
             max-width: 160px;
         }
-        &>*{
-            margin-left:6px;
+        & > * {
+            margin-left: 6px;
         }
     }
-    &>.tip{
-        .warn{
-           color:#FF9800;
-           margin-bottom:8px;
-       }
-       .row{
-           display: flex;
-           line-height:28px;
-         &>.grey{
-             color:grey;
-             margin-left:20px;
-         }
-       }
-       .sb{
-            justify-content:space-between;
-       }
-       
+    & > .tip {
+        .warn {
+            color: #ff9800;
+            margin-bottom: 8px;
+        }
+        .row {
+            display: flex;
+            line-height: 28px;
+            & > .grey {
+                color: grey;
+                margin-left: 20px;
+            }
+        }
+        .sb {
+            justify-content: space-between;
+        }
     }
-    .t-box{
+    .t-box {
         overflow: hidden;
         border-top: 1px solid #ebebeb;
         border-left: 1px solid #ebebeb;
         border-radius: 3px;
         width: max-content;
-        
     }
-    table{
-        overflow-x:auto;
-        tbody>tr{
-            background-color:white;
+    table {
+        overflow-x: auto;
+        tbody > tr {
+            background-color: white;
         }
-        th{
+        th {
             color: rgba(0, 0, 0, 0.6);
             padding: 9px 12px;
             position: relative;
             font-weight: 400;
-            text-align:center;
+            text-align: center;
         }
-        th,td{
+        th,
+        td {
             border-right: 1px solid #ebebeb;
             border-bottom: 1px solid #ebebeb;
         }
-        td{
-            text-align:center;
-            .ant-upload-list-picture-card-container{
-                margin:0
+        td {
+            text-align: center;
+            .ant-upload-list-picture-card-container {
+                margin: 0;
             }
         }
-        tr>td:last-of-type {
+        tr > td:last-of-type {
             text-align: center;
         }
-        input{
+        input {
             border: none;
             padding: 20px 0;
-            text-align:center;
+            text-align: center;
         }
-        .ant-upload-select-picture-card{
-            width:40px;
-            height:40px;
-            display:block;
-            margin:0 auto;
+        .ant-upload-select-picture-card {
+            width: 40px;
+            height: 40px;
+            display: block;
+            margin: 0 auto;
             .ant-upload-list-picture-card-container {
                 width: 50px;
                 height: 50px;
                 display: block;
                 margin: 0 auto;
-            }       
+            }
             .ant-upload-list-item-info::before {
                 left: 0;
             }
             .ant-upload-list-item-list-type-picture-card {
                 padding: 0 !important;
             }
-            .ant-upload-text{
-                display:none
+            .ant-upload-text {
+                display: none;
             }
-            img{
+            img {
                 width: 80px;
                 height: 80px;
             }
         }
-}
+    }
+`;
 
-`
-
-const defoOption = <Option key={-1} value={-1}>全部</Option>
+const defoOption = (
+    <Option key={-1} value={-1}>
+        全部
+    </Option>
+);
 const inputCols = [
-    { key: 'number', name: '库存' },
-    { key: 'advicePrice', name: '市场价' },
-    { key: 'discount', name: '折扣%' },
-    { key: 'paymentPrice', name: '售价' },
-    { key: 'weight', name: '重量' },
-    { key: 'volume', name: '体积' },
-    { key: 'skuCode', name: '编号' }
+    { key: "number", name: "库存" },
+    { key: "advicePrice", name: "市场价" },
+    { key: "discount", name: "折扣%" },
+    { key: "paymentPrice", name: "售价" },
+    { key: "weight", name: "重量" },
+    { key: "volume", name: "体积" },
+    { key: "skuCode", name: "编号" },
 ];
 const shortcutCols = [
-    { key: 'number', name: '库存' },
-    { key: 'advicePrice', name: '市场价' },
-    { key: 'discount', name: '折扣%' },
-    { key: 'weight', name: '重量' },
-    { key: 'volume', name: '体积' }
-]
-const defoValuesKv = [['isShelve', true]]
+    { key: "number", name: "库存" },
+    { key: "advicePrice", name: "市场价" },
+    { key: "discount", name: "折扣%" },
+    { key: "weight", name: "重量" },
+    { key: "volume", name: "体积" },
+];
+const defoValuesKv = [["isShelve", true]];
 /**
  * 生成一个只有规格和默认值的sku
  * @param {SpecValue} v
- * @param {number} j 
- * @returns {Spec} 
-*/
+ * @param {number} j
+ * @returns {Spec}
+ */
 const genSku = (v, j) => ({
     optionName: v.value,
-    id: v.id || '_' + j,//下划线开头表示新增 提交前通过判断把它干掉
-    propertyId: v.propertyId
-})
-
+    id: v.id || "_" + j, //下划线开头表示新增 提交前通过判断把它干掉
+    propertyId: v.propertyId,
+});
 
 /**
  * 将规格值 去重后生成快捷设置内的选项
- * @param {SpecValue[]} specs 
+ * @param {SpecValue[]} specs
  * @returns {SelectOption[]}
  */
 function buildOptions(specs = []) {
-    let specValues = specs.map(v => v.value)
-    specValues = Array.from(new Set(specValues))
-    let opts = specValues.map(s => <Option key={s}>{s}</Option>)
-    return [defoOption, ...opts]
+    let specValues = specs.map((v) => v.value);
+    specValues = Array.from(new Set(specValues));
+    let opts = specValues.map((s) => <Option key={s}>{s}</Option>);
+    return [defoOption, ...opts];
 }
 
 /**
- * 动态生成 规格的 快捷设置 
- * @param {Option[]} options 
- * @param {SpecValue[][]} values 
- * @param {{key:string,name:string}[]} inputs 
+ * 动态生成 规格的 快捷设置
+ * @param {Option[]} options
+ * @param {SpecValue[][]} values
+ * @param {{key:string,name:string}[]} inputs
  */
 function buildShortcuts(options, values, inputs) {
-    let selects = options.map((v, i) => <Item key={i} noStyle name={['shortcut', 'optionNames', i]} initialValue={-1}><Select>{buildOptions(values[i])}</Select></Item>)
-    let start = options.length
-    let items = inputs.map((v, i) => <Item key={i + start} noStyle name={['shortcut', v.key]} ><Input placeholder={v.name} /></Item>)
-    return selects.concat(items)
+    let selects = options.map((v, i) => (
+        <Item
+            key={i}
+            noStyle
+            name={["shortcut", "optionNames", i]}
+            initialValue={-1}
+        >
+            <Select>{buildOptions(values[i])}</Select>
+        </Item>
+    ));
+    let start = options.length;
+    let items = inputs.map((v, i) => (
+        <Item key={i + start} noStyle name={["shortcut", v.key]}>
+            <Input placeholder={v.name} />
+        </Item>
+    ));
+    return selects.concat(items);
 }
 /**
- * 
- * @param {SpecValue[]} specs 
- * @param {number} i 
+ *
+ * @param {SpecValue[]} specs
+ * @param {number} i
  */
 function buildSpecItem(specs, i) {
     return specs.map((v, j) => (
         <React.Fragment key={j}>
-            <Item hidden name={['skus', i, 'skuPropertyModels', j, 'optionName']} ><Input /></Item>
-            <Item hidden name={['skus', i, 'skuPropertyModels', j, 'propertyId']}><Input /></Item>
-            <Item hidden name={['skus', i, 'skuPropertyModels', j, 'id']}><Input /></Item>
+            <Item
+                hidden
+                name={["skus", i, "skuPropertyModels", j, "optionName"]}
+            >
+                <Input />
+            </Item>
+            <Item
+                hidden
+                name={["skus", i, "skuPropertyModels", j, "propertyId"]}
+            >
+                <Input />
+            </Item>
+            <Item hidden name={["skus", i, "skuPropertyModels", j, "id"]}>
+                <Input />
+            </Item>
         </React.Fragment>
-    ))
+    ));
 }
 /**
  * 获取对象的第一个key，对于嵌套对象 返回数组key
  * 如{a:{b:{c:'value'}}}
  * 返回 ['a','b','c']
- * @param {object} obj 
+ * @param {object} obj
  * @returns {string[]}
  */
 function getNamePath(obj) {
-    let arr = []
+    let arr = [];
     function work(obj, arr) {
-        let key = Object.keys(obj)[0]
+        let key = Object.keys(obj)[0];
         if (key == null) return arr;
-        arr.push(key)
-        if (typeof obj[key] !== 'object') return arr;
-        return work(obj[key], arr)
+        arr.push(key);
+        if (typeof obj[key] !== "object") return arr;
+        return work(obj[key], arr);
     }
-    return work(obj, arr)
-
+    return work(obj, arr);
 }
 /**表格内 值同步变更 [key,calcFn] */
 const valueSyncMap = new Map([
-    ['advicePrice', function (sku) {
-        let { discount = 1, advicePrice } = sku
-        sku.paymentPrice = advicePrice * discount / 100
-    }],
-    ['discount', function (sku) {
-        let { discount, advicePrice = 1 } = sku
-        sku.paymentPrice = advicePrice * discount / 100
-    }],
-    ['paymentPrice', function (sku) {
-        let { advicePrice = 1, paymentPrice = 1 } = sku
-        sku.discount = paymentPrice / advicePrice * 100
-    }]])
+    [
+        "advicePrice",
+        function (sku) {
+            let { discount = 1, advicePrice } = sku;
+            sku.paymentPrice = (advicePrice * discount) / 100;
+        },
+    ],
+    [
+        "discount",
+        function (sku) {
+            let { discount, advicePrice = 1 } = sku;
+            sku.paymentPrice = (advicePrice * discount) / 100;
+        },
+    ],
+    [
+        "paymentPrice",
+        function (sku) {
+            let { advicePrice = 1, paymentPrice = 1 } = sku;
+            sku.discount = (paymentPrice / advicePrice) * 100;
+        },
+    ],
+]);
 /**快捷设置内 值同步变更 [key,calcFn] 只同步 供货价 */
 const shortcutSyncMap = new Map([
-    ['advicePrice', function (sku, shortcut) {
-        let { advicePrice } = shortcut
-        let { discount = 100 } = sku
-        let paymentPrice = advicePrice * discount / 100
-        return { discount, advicePrice, paymentPrice }
-
-    }],
-    ['discount', function (sku, shortcut) {
-        let { discount } = shortcut
-        let { advicePrice = 1 } = sku
-        let paymentPrice = advicePrice * discount / 100
-        return { discount, advicePrice, paymentPrice }
-
-    }],
+    [
+        "advicePrice",
+        function (sku, shortcut) {
+            let { advicePrice } = shortcut;
+            let { discount = 100 } = sku;
+            let paymentPrice = (advicePrice * discount) / 100;
+            return { discount, advicePrice, paymentPrice };
+        },
+    ],
+    [
+        "discount",
+        function (sku, shortcut) {
+            let { discount } = shortcut;
+            let { advicePrice = 1 } = sku;
+            let paymentPrice = (advicePrice * discount) / 100;
+            return { discount, advicePrice, paymentPrice };
+        },
+    ],
     //两个都有
-    ['advicePrice-discount', function (sku, shortcut) {
-        let { discount, advicePrice } = shortcut
-        let paymentPrice = advicePrice * discount / 100
-        return { discount, advicePrice, paymentPrice }
-    }]])
+    [
+        "advicePrice-discount",
+        function (sku, shortcut) {
+            let { discount, advicePrice } = shortcut;
+            let paymentPrice = (advicePrice * discount) / 100;
+            return { discount, advicePrice, paymentPrice };
+        },
+    ],
+]);
 /**跟 shortcutSyncMap 保存一致*/
-const needCalcKeys = ['advicePrice', 'discount']
+const needCalcKeys = ["advicePrice", "discount"];
 
 /**
  * 监听表单值
  * @param {FormInstance} form
  * @returns {(ed:object,all:object)=>void}
  */
-const valueChangeHandler = form => (ed, all) => {
-    let keys = getNamePath(ed)
-    let lastK = keys.pop()
+const valueChangeHandler = (form) => (ed, all) => {
+    let keys = getNamePath(ed);
+    let lastK = keys.pop();
 
     switch (keys[0]) {
-        case 'skus':
+        case "skus":
             if (!valueSyncMap.has(lastK)) return;
             //值同步，比如修改折扣会同时修改出货价
-            let sku = keys.reduce((pre, cur) => pre[cur], all)
-            valueSyncMap.get(lastK)(sku)
-            form.setFieldsValue({ ...all })
+            let sku = keys.reduce((pre, cur) => pre[cur], all);
+            valueSyncMap.get(lastK)(sku);
+            form.setFieldsValue({ ...all });
             break;
-        case 'shortcut'://快捷操作中
-            let isSpec = /\d/.test(lastK)
+        case "shortcut": //快捷操作中
+            let isSpec = /\d/.test(lastK);
             if (!isSpec) break;
             //如果规格发生变化，清空输入框内容，避免误操作
-            let shortcut = all.shortcut
-            shortcutCols.forEach(v => shortcut[v.key] = undefined)
-            form.setFieldsValue({ ...all })
+            let shortcut = all.shortcut;
+            shortcutCols.forEach((v) => (shortcut[v.key] = undefined));
+            form.setFieldsValue({ ...all });
             break;
         default:
             break;
     }
-
-
-}
+};
 /**
  * 分步比较 用于判断快捷设置内的选项
  * @param {string|-1} first
@@ -276,213 +316,276 @@ const valueChangeHandler = form => (ed, all) => {
 function stepCompare(first = -1) {
     let isPass = first === -1;
     return function (second = -1) {
-        return isPass ? true : second === first
-    }
+        return isPass ? true : second === first;
+    };
 }
 
-const isFakeImgId = id => /^_\d+/.test(id);//like '_0'
-
+const isFakeImgId = (id) => /^_\d+/.test(id); //like '_0'
 
 /**
  * 将快捷设置值 填充到 适配的规格
- * @param {FormInstance} form 
+ * @param {FormInstance} form
  */
-const autoSet = form => {
-    let { shortcut, skus } = form.getFieldsValue()
+const autoSet = (form) => {
+    let { shortcut, skus } = form.getFieldsValue();
+    if (!shortcut) return message.warn("请先添加规格");
+
     let { optionNames, ...rest } = shortcut;
 
-    let kvs = Object.entries(rest).filter(([k, v]) => v !== undefined)
-    if (!kvs.length) return message.warn('请输入要填充的值');
-    let values = Object.fromEntries(kvs)
-    let compareFns = optionNames.map(stepCompare)
+    let kvs = Object.entries(rest).filter(([k, v]) => v !== undefined);
+    if (!kvs.length) return message.warn("请输入要填充的值");
+    let values = Object.fromEntries(kvs);
+    let compareFns = optionNames.map(stepCompare);
 
-    skus = skus.map(s => {
-        let isSame = s.skuPropertyModels.every((m, i) => compareFns[i](m.optionName))
+    skus = skus.map((s) => {
+        let isSame = s.skuPropertyModels.every((m, i) =>
+            compareFns[i](m.optionName)
+        );
         if (!isSame) return s;
 
-        let syncKeys = needCalcKeys.filter(k => !!values[k])
-        if (!syncKeys.length) return { ...s, ...values }
+        let syncKeys = needCalcKeys.filter((k) => !!values[k]);
+        if (!syncKeys.length) return { ...s, ...values };
 
-        let fn = shortcutSyncMap.get(syncKeys.join('-'))
-        let updated = fn(s, values)
-        return { ...s, ...values, ...updated }
-
-    })
-    form.setFieldsValue({ skus })
-}
+        let fn = shortcutSyncMap.get(syncKeys.join("-"));
+        let updated = fn(s, values);
+        return { ...s, ...values, ...updated };
+    });
+    form.setFieldsValue({ skus });
+};
 /**
- * 从表单提取并转换 sku值 
- * @param {FormInstance} form 
+ * 从表单提取并转换 sku值
+ * @param {FormInstance} form
  */
-const extraFormValues = form => () => {
+const extraFormValues = (form) => () => {
     // let hasErr = false
     // let { skus } = await form.validateFields().catch(e => hasErr = true)
     // if (hasErr) return false;
     /**@type {FormValues} */
-    let { skus = [] } = form.getFieldsValue()
+    let { skus = [] } = form.getFieldsValue();
     /**@type {SkuOrigin[]} */
-    let converted = skus.map(v => {
+    let converted = skus.map((v) => {
         let { preview, isShelve } = v;
-        preview = preview || []
-        v.skuPropertyModels.forEach(s => {
+        preview = preview || [];
+        v.skuPropertyModels.forEach((s) => {
             if (isFakeImgId(s.id)) {
-                s.id = undefined
+                s.id = undefined;
             }
-        })
+        });
         if (preview.length) {
-            v.preview = preview[0].response.message
+            v.preview = preview[0].response.message;
         }
         v.isShelve = isShelve ? 1 : 0;
-        return v
+        return v;
+    });
+    return converted;
+};
 
-    })
-    return converted
-}
-
-/**回填 表单值 
+/**回填 表单值
  * @param {{productSkus:SkuOrigin[]}} defo
  * @returns {{skus:SkuInForm[]}}
-*/
+ */
 const backfill = (defo) => {
     let { productSkus } = defo;
-    let skus = productSkus || []
+    let skus = productSkus || [];
     if (!skus.length) return undefined;
 
     /**
      * 处理null 和 需要格式转换的值
-     * @param {SkuOrigin} s 
+     * @param {SkuOrigin} s
      */
-    const valueConver = s => {
+    const valueConver = (s) => {
         // keys.forEach(k => {
         //     if (s[k] === null) {
         //         s[k] = undefined
         //     };
         // })
         if (s.preview) {
-            s.preview = makeUploadDefaultValue([s.preview])
+            s.preview = makeUploadDefaultValue([s.preview]);
         }
-        s.isShelve = s.isShelve ? true : false
-    }
+        s.isShelve = s.isShelve ? true : false;
+    };
 
-    skus.forEach(valueConver)
-    return { skus }
-}
+    skus.forEach(valueConver);
+    return { skus };
+};
 const defoSpes = [];
 /**
- * 
- * @param {Props} props 
- * @param {React.RefObject<{()=>object}[]>} ref 
+ *
+ * @param {Props} props
+ * @param {React.RefObject<{()=>object}[]>} ref
  */
 function SkuForm({ options, spec = defoSpes, defo }, ref) {
-    const [form] = Form.useForm()
-    const hanleValueChange = useCallback(debounce(valueChangeHandler(form), 300), [])
+    const [form] = Form.useForm();
+    const hanleValueChange = useCallback(
+        debounce(valueChangeHandler(form), 300),
+        []
+    );
 
     /**@type {SpecValue[][]}*/
-    let validSpecs = spec.map(v => v.values.filter(a => a.isUsed));
-    validSpecs.forEach((arr, i) => arr.forEach(v => v.propertyId = spec[i].propertyId))
+    let validSpecs = spec.map((v) => v.values.filter((a) => a.isUsed));
+    validSpecs.forEach((arr, i) =>
+        arr.forEach((v) => (v.propertyId = spec[i].propertyId))
+    );
     let [first = [], ...rest] = validSpecs;
 
     /**@type {SpecValue[][]}*/
     let items = rest.length
         ? rest.reduce((pre, cur, i) => {
-            return pre.map(p => cur.map(c => i > 0 ? p.concat(c) : [p, c])).flat()
-        }, first)
-        : first.map(f => [f])
-
-
+              return pre
+                  .map((p) => cur.map((c) => (i > 0 ? p.concat(c) : [p, c])))
+                  .flat();
+          }, first)
+        : first.map((f) => [f]);
 
     /**@type {React.ReactNode[]} tr表格行 行内单元格td 为表单项*/
     let contents = items.map((s, i) => (
         <tr key={i}>
             {/* {rows[i]} */}
-            {s.map((v, j) => <td key={j}>{v.value}</td>)}
-            {inputCols.map((n, ni) => <td key={ni}><Item noStyle name={['skus', i, n.key]}><Input /></Item></td>)}
+            {s.map((v, j) => (
+                <td key={j}>{v.value}</td>
+            ))}
+            {inputCols.map((n, ni) => (
+                <td key={ni}>
+                    <Item noStyle name={["skus", i, n.key]}>
+                        <Input />
+                    </Item>
+                </td>
+            ))}
             <td>
                 {buildSpecItem(s, i)}
-                <Item noStyle name={['skus', i, 'preview']} valuePropName="fileList"><ImgUpload /></Item>
-                <Item hidden name={['skus', i, 'id']}><Input /></Item>
+                <Item
+                    noStyle
+                    name={["skus", i, "preview"]}
+                    valuePropName="fileList"
+                >
+                    <ImgUpload />
+                </Item>
+                <Item hidden name={["skus", i, "id"]}>
+                    <Input />
+                </Item>
             </td>
-            <td><Item noStyle name={['skus', i, 'isShelve']} valuePropName="checked" initialValue={true}><Switch /></Item></td>
-        </tr>)
-    )
+            <td>
+                <Item
+                    noStyle
+                    name={["skus", i, "isShelve"]}
+                    valuePropName="checked"
+                    initialValue={true}
+                >
+                    <Switch />
+                </Item>
+            </td>
+        </tr>
+    ));
 
-    useEffect(() => {//这个副作用只会执行一次
-        ref.current.push(extraFormValues(form))
-    }, [])
+    useEffect(() => {
+        //这个副作用只会执行一次
+        ref.current.push(extraFormValues(form));
+    }, []);
 
-    useEffect(() => {//这个副作用没有指定依赖数组，会在每次更新执行
+    useEffect(() => {
+        //这个副作用没有指定依赖数组，会在每次更新执行
         /**@type {FormValues} */
-        let preValues = form.getFieldsValue()
-        let specArr = items.map(arr => arr.map(genSku))
-        let skus = specArr.length && preValues.skus
-            ? specArr.map((cur, i) => {
-                /**@type {SkuInForm} */
-                let pre = preValues.skus[i] || Object.fromEntries(defoValuesKv);
-                pre.skuPropertyModels = specArr[i]
-                return pre
-            })
-            : []
+        let preValues = form.getFieldsValue();
+        let specArr = items.map((arr) => arr.map(genSku));
+        let skus =
+            specArr.length && preValues.skus
+                ? specArr.map((cur, i) => {
+                      /**@type {SkuInForm} */
+                      let pre =
+                          preValues.skus[i] || Object.fromEntries(defoValuesKv);
+                      pre.skuPropertyModels = specArr[i];
+                      return pre;
+                  })
+                : [];
         let { shortcut } = preValues;
         if (!shortcut) {
-            form.setFieldsValue({ skus })
+            form.setFieldsValue({ skus });
             return;
         }
-        shortcut.optionNames.fill(-1)
-        form.setFieldsValue({ shortcut, skus })
-    })
-
+        shortcut.optionNames.fill(-1);
+        form.setFieldsValue({ shortcut, skus });
+    });
 
     useEffect(() => {
         if (!defo) return;
-        let initValues = backfill(defo)
-        form.setFieldsValue(initValues)
-    }, [defo])
+        let initValues = backfill(defo);
+        form.setFieldsValue(initValues);
+    }, [defo]);
 
-    const autoSetCallBack = useCallback(() => autoSet(form), [])
+    const autoSetCallBack = useCallback(() => autoSet(form), []);
 
     return (
-        <Form
-            form={form}
-            name="skutable"
-            onValuesChange={hanleValueChange}
-        >
-            <Item label="价格和库存" labelCol={{ span: 2 }} wrapperCol={{ span: 22 }}>
+        <Form form={form} name="skutable" onValuesChange={hanleValueChange}>
+            <Item
+                label="价格和库存"
+                labelCol={{ span: 2 }}
+                wrapperCol={{ span: 22 }}
+            >
                 <TableBox>
                     <div className="tip">
-                        <div className="warn">请如实填写库存信息，以确保商品可以在承诺发货时间内发出，避免可能的物流违规</div>
+                        <div className="warn">
+                            请如实填写库存信息，以确保商品可以在承诺发货时间内发出，避免可能的物流违规
+                        </div>
                         <div className="row sb">
                             <div className="row">
                                 <h6>批量设置</h6>
-                                <div className="grey">在下方栏中选择内容进行批量填充</div>
+                                <div className="grey">
+                                    在下方栏中选择内容进行批量填充
+                                </div>
                             </div>
                             <Button onClick={autoSetCallBack}>立即设置</Button>
                         </div>
                         <div className="shortcut">
-                            {contents.length ? buildShortcuts(options, validSpecs, shortcutCols) : null}
+                            {contents.length
+                                ? buildShortcuts(
+                                      options,
+                                      validSpecs,
+                                      shortcutCols
+                                  )
+                                : null}
                         </div>
                     </div>
                     <div className="t-box">
                         <table>
                             <colgroup>
-                                <col span={options.length + inputCols.length + 2} style={{ width: 90 }}></col>
+                                <col
+                                    span={options.length + inputCols.length + 2}
+                                    style={{ width: 90 }}
+                                ></col>
                             </colgroup>
                             <thead>
                                 <tr>
-                                    {contents.length ? options.map(v => <th key={v.id}>{v.name}</th>) : null}
-                                    {inputCols.map((n, i) => <th key={i}>{n.name}</th>)}
-                                    {contents.length ? (<>
-                                        <th>图片</th>
-                                        <th>是否上架</th>
-                                    </>) : null}
-
+                                    {contents.length
+                                        ? options.map((v) => (
+                                              <th key={v.id}>{v.name}</th>
+                                          ))
+                                        : null}
+                                    {inputCols.map((n, i) => (
+                                        <th key={i}>{n.name}</th>
+                                    ))}
+                                    {contents.length ? (
+                                        <>
+                                            <th>图片</th>
+                                            <th>是否上架</th>
+                                        </>
+                                    ) : null}
                                 </tr>
                             </thead>
                             <tbody>
-                                {contents.length > 0
-                                    ? [...contents]
-                                    : (<tr key={-1}>
-                                        {inputCols.map((n, i) => <td key={i}> <div><input type="text" /> </div></td>)}
-                                    </tr>)}
+                                {contents.length > 0 ? (
+                                    [...contents]
+                                ) : (
+                                    <tr key={-1}>
+                                        {inputCols.map((n, i) => (
+                                            <td key={i}>
+                                                {" "}
+                                                <div>
+                                                    <input type="text" />{" "}
+                                                </div>
+                                            </td>
+                                        ))}
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -491,7 +594,7 @@ function SkuForm({ options, spec = defoSpes, defo }, ref) {
         </Form>
     );
 }
-export default forwardRef(SkuForm)
+export default forwardRef(SkuForm);
 
 /**
  * @typedef {import('antd/lib/form').FormInstance} FormInstance

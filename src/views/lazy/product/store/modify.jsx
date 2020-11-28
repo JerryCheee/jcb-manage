@@ -16,7 +16,7 @@ const Lead = styled.div`
     margin-bottom: 14px;
 `;
 const mb14 = { marginBottom: 14 };
-const validRoleTypes = [-1, 0]; //门店和城市运营中心
+const validRoleTypes = [-1, 0, 1, 2]; //门店和城市运营中心
 
 const conditionGet = (isDraft, isVerify) => {
     if (isVerify) return api.getDetail;
@@ -25,6 +25,7 @@ const conditionGet = (isDraft, isVerify) => {
     return api[methodName];
 };
 const getDetail = async (id, isDraft, isVerify, next) => {
+    debugger;
     let req = conditionGet(isDraft, isVerify);
     let res = await req(id);
     if (res.code) return message.error(res.msg);
