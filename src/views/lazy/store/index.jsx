@@ -65,7 +65,7 @@ export default function SotreList() {
         },
         { title: "门店类型", key: "levelName", dataIndex: "levelName" },
         { title: "推荐人", key: "sourceName", dataIndex: "sourceName" },
-        { title: "联系人", key: "contacts", dataIndex: "contacts" },
+        { title: "联系人", key: "nickName", dataIndex: "nickName" },
         { title: "联系电话", key: "phone", dataIndex: "phone" },
 
         {
