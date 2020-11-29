@@ -78,8 +78,11 @@ export default function ModifyProduct({ location, history }) {
         //  console.log(params)
         //  setLoading(false)
         //  return
+        if (editData) params.workId = editData.id;
         let res = isEdit
-            ? await api.edit(editData.id, params)
+            ? baseData.isDraft
+                ? await api.submitDraft(params)
+                : await api.edit(editData.id, params)
             : await api.add(params);
         if (res.code) return message.error(res.msg);
         //以前有工作流，现在不用审核，直接调接口

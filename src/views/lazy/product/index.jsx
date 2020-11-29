@@ -314,7 +314,7 @@ export default function ProductList() {
                     queryType,
                     status: [sta],
                 } = typeAndStatus;
-                let editData = { id: data.id };
+                let editData = { id: sta === 3 ? data.workId : data.id };
                 /**@type {import('./modify').baseData} */
                 let baseData = { target: queryType, isDraft: sta === 3 };
                 return (

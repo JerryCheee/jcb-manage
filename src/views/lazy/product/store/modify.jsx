@@ -25,9 +25,11 @@ const conditionGet = (isDraft, isVerify) => {
     return api[methodName];
 };
 const getDetail = async (id, isDraft, isVerify, next) => {
-    debugger;
+    let res = null;
+
     let req = conditionGet(isDraft, isVerify);
-    let res = await req(id);
+    res = await req(id);
+
     if (res.code) return message.error(res.msg);
     next(res.data);
 };

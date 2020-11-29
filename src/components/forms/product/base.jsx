@@ -81,7 +81,7 @@ const extraFormValues = (form) => () => {
         sort: i,
         id: getImgId(p.uid),
     }));
-    values.tags = tags.filter((v) => v.valueIds && v.valueIds.length);
+    values.tags = (tags || []).filter((v) => v.valueIds && v.valueIds.length);
     values.preview = undefined;
     values.mainImg = undefined;
     values.classId = (ids || []).pop();

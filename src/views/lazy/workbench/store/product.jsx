@@ -114,16 +114,13 @@ export default function StoreProductConfirm() {
             key: "operation",
             dataIndex: "operation",
             render: (t, data) => {
+                data.id = data.workId;
                 return (
                     <span>
                         <Link
                             to={{
                                 pathname: "/product/store/modify",
-                                state: {
-                                    editData: data,
-                                    isDraft: true,
-                                    isVerify: true,
-                                },
+                                state: { editData: data, isDraft: true },
                             }}
                         >
                             审核
