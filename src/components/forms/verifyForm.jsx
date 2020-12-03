@@ -13,10 +13,10 @@ function VerifyForm({ id }, ref) {
             values.id = id;
             let res = await api.verify(values);
             if (res.code) {
-                message.error(res.msg);
+                message.error("审核失败！");
                 return false;
             }
-            message.success(res.msg);
+            // message.success(res.msg);
             return true;
         };
         ref.current = onSubmit;

@@ -45,6 +45,8 @@ export default function StoreProductConfirm() {
     const cacheRef = useParamsCache();
     const [typeAndStatus, dispatch] = useReducer(reducer, initialState);
     const getData = async (params) => {
+        params.queryType = 1;
+        params.status = 0;
         let res = await api.getList(1, simplify(params));
         if (res.code) return message.error(res.msg);
         cacheRef.current = params;
@@ -102,7 +104,8 @@ export default function StoreProductConfirm() {
         },
         { title: "售价", dataIndex: "minPaymentPrice", key: "minPaymentPrice" },
         { title: "服务费", dataIndex: "serviceFee", key: "serviceFee" },
-        { title: "库存", dataIndex: "stock", key: "stock" },
+        { title: "提交时间", dataIndex: "updateTime", key: "updateTime" },
+        // { title: "库存", dataIndex: "stock", key: "stock" },
         {
             title: "状态",
             dataIndex: "status",
@@ -120,7 +123,11 @@ export default function StoreProductConfirm() {
                         <Link
                             to={{
                                 pathname: "/product/store/modify",
-                                state: { editData: data, isDraft: true },
+                                state: {
+                                    editData: data,
+                                    isDraft: true,
+                                    isVerify: true,
+                                },
                             }}
                         >
                             审核
@@ -136,7 +143,7 @@ export default function StoreProductConfirm() {
         <Table
             dataSource={datas}
             columns={columns}
-            rowKey="id"
+            rowKey={(data) => data.id || data.workId}
             pagination={pageInfo}
             onChange={handleTableChange}
         />

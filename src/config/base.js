@@ -1,8 +1,8 @@
-const domain = 'http://192.168.2.173:8001' // 局域网测试
-    // const domain = 'http://192.168.2.117:8080'// 局域网测试
-    // const domain = 'https://www.youfuchaye.com'//正式服
-    // const domain = `${window.location.origin.split(':')[1]}:4396`//mock 服务
-    // const domain = 'https://china-jcb.com' ///测试服
+// const domain = 'http://192.168.2.173:8001'; // 局域网测试
+// const domain = 'http://192.168.2.117:8080';// 局域网测试
+// const domain = 'https://www.youfuchaye.com';//正式服
+// const domain = `${window.location.origin.split(':')[1]}:4396`;//mock 服务
+const domain = 'https://china-jcb.com'; ///测试服
 export default {
     ApiDomain: domain,
     /**项目启动目录*/

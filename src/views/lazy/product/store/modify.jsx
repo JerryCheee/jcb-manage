@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
-import { message, Button, Row, Col } from "antd";
+import { message, Button, Row, Col, Input } from "antd";
 import api from "../../../../api/product";
 import workApi from "../../../../api/work";
 import styled from "styled-components";
@@ -19,7 +19,7 @@ const mb14 = { marginBottom: 14 };
 const validRoleTypes = [-1, 0, 1, 2]; //门店和城市运营中心
 
 const conditionGet = (isDraft, isVerify) => {
-    if (isVerify) return api.getDetail;
+    if (isVerify && !isDraft) return api.getDetail;
 
     let methodName = isDraft ? "getDraftDetail" : "getDetail";
     return api[methodName];
@@ -61,24 +61,44 @@ export default function ModifyProduct({ location, history }) {
     const [detail, setDetail] = useState();
     const curUser = useSelector((s) => s.admin.info);
     const verfiySubmitRef = useRef(() => {});
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (!isEdit) return;
-        getDetail(editData.id, isDraft, isVerify, setDetail);
+        getDetail(editData.id, isDraft, isVerify, (data) => {
+            setDetail(data);
+        });
         //eslint-disable-next-line
     }, []);
-
     const onSubmit = async () => {
+        if (loading) return;
+        setLoading(true);
         if (!validRoleTypes.includes(curUser.roleType))
             return message.error("请使用门店类型的账号");
 
         let params = takeAllValues(subscribeRef.current, editorRef);
-        params.storeId = curUser.id; //门店id即自己的id
+        if (isDraft || isVerify) {
+            params.storeId = detail.storeId;
+            params.supplierId = detail.supplierId;
+        } else {
+            params.storeId = curUser.id;
+        }
         // return console.log(params)
+        if (editData) params.workId = editData.id;
         let res = isEdit
-            ? await api.edit(editData.id, params)
+            ? isDraft
+                ? await api.submitDraft(params)
+                : await api.edit(editData.id, params)
             : await api.add(params);
         if (res.code) return message.error(res.msg);
+        if (curUser.roleType == -1 || curUser.roleType == 0) {
+            // //以前有工作流，现在不用审核，直接调接口
+            // res = await workApi.verify({ id: res.data, status: 1 });
+            // if (res.code) return message.error(res.msg || "审核接口 报错");
+            var ver = await verfiySubmitRef.current();
+            if (!ver) return;
+        }
+        setLoading(false);
         message.success("操作成功", history.goBack);
     };
     const onSave = async () => {
@@ -91,7 +111,10 @@ export default function ModifyProduct({ location, history }) {
         if (isVerify) {
             return (
                 <>
-                    <VerifyForm ref={verfiySubmitRef} />
+                    {detail ? (
+                        <VerifyForm id={detail.workId} ref={verfiySubmitRef} />
+                    ) : null}
+
                     <Row>
                         <Col span={3} offset={8}>
                             <Button type="primary" onClick={onSubmit}>
@@ -114,7 +137,7 @@ export default function ModifyProduct({ location, history }) {
                 </Col>
             </Row>
         );
-    }, [isVerify]);
+    }, [isVerify, detail]);
     return (
         <div>
             <Lead>1. 商品基本信息</Lead>

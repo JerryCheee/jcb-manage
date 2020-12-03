@@ -27,7 +27,6 @@ import { defoPage, defoPageInfo, simplify } from "../../../../utils/handy";
 import FilterableSelect from "../../../../components/formItem/FilterableSelect";
 import { Link } from "react-router-dom";
 import { useChangeUpStatus } from "../../../../hook/useChangeUpStatus";
-
 const Item = Form.Item;
 const ml10 = { marginLeft: 10 };
 const ProductImg = styled.img`
@@ -53,9 +52,8 @@ const statusOptions = [
     { value: 4, label: "回收站" },
 ];
 const platformOptions = [
-    { value: 0, label: "全部" },
-    { value: 101, label: "已发布" },
-    { value: 102, label: "未发布" },
+    { value: 1, label: "已发布" },
+    { value: 2, label: "未发布" },
 ];
 const optKey = { label: "name", value: "id" };
 
@@ -90,13 +88,14 @@ function getLastTimeData(cacheRef, form, setQueryType, getData) {
     }
 }
 const enhancedSimplify = (params) => {
+    if (!params) return;
     let { status } = params;
     params.status = status === 3 ? undefined : status;
     return simplify(params);
 };
 export default function ProductList() {
     const [pageInfo, setPageInfo] = useState(defoPageInfo);
-    const cacheRef = useParamsCache();
+    const cacheRef = useParamsCache(null);
     const [loading, setLoading] = useState(false);
     const [form] = Form.useForm();
     const [clasOptions, setClasOptions] = useState([]);
@@ -134,18 +133,26 @@ export default function ProductList() {
     const getData = async (params) => {
         setLoading(true);
         params.queryType = queryType;
-        let res =
-            params.status === 3
-                ? await api.getDraftList(enhancedSimplify(params))
-                : await api.getList(enhancedSimplify(params));
-        setLoading(false);
+        if (queryType == 2 && !params.isUp) {
+            params.isUp = 1;
+        }
+        if (queryType == 1) {
+            delete params.isUp;
+        }
         cacheRef.current = params;
+        let res = await api.getList(simplify(params));
+        setLoading(false);
+
         if (res.code) {
             return message.error(res.msg);
         }
         setDatas(res.data.records);
-        let { current, pageSize } = params;
-        setPageInfo((s) => ({ current, pageSize, total: res.data.total }));
+        let { current = 1, pageSize = 10 } = params;
+        setPageInfo((s) => ({
+            current,
+            pageSize,
+            total: res.data.total,
+        }));
     };
 
     const handleTableChange = (
@@ -157,9 +164,9 @@ export default function ProductList() {
         getData({ ...lastParams, current, pageSize });
     };
     useEffect(() => {
+        enhancedSimplify(cacheRef.current);
         getClassifyOptions(setClasOptions);
         getBrandOptions(setBrandOptions);
-
         if (!cacheRef.current) {
             getData(defoPage);
             return;
@@ -215,6 +222,12 @@ export default function ProductList() {
                             <div>价格:{data.minPrice}</div>
                             <div>分类:{data.className}</div>
                             <div>品牌:{t}</div>
+                            {queryType === 1 ? (
+                                <div>
+                                    类型:
+                                    {data.productType == 1 ? "代理" : "自营"}
+                                </div>
+                            ) : null}
                         </div>
                     ),
                 },
@@ -242,7 +255,7 @@ export default function ProductList() {
                     key: "upStatus",
                     render: (t, data) => (
                         <Switch
-                            checked={Boolean(t)}
+                            checked={t == 1 ? true : false}
                             onChange={changeUpStatus(data.id, datas)}
                         />
                     ),
@@ -253,10 +266,16 @@ export default function ProductList() {
                     key: "operation",
                     width: 80,
                     render: (_, data) => {
-                        let isDraft = cacheRef.current?.status === 3;
+                        let isDraft = [0, 1, 3].includes(
+                            cacheRef.current?.status
+                        );
+                        let newData = data;
+                        if (!data.id) {
+                            newData = { ...data, id: data.workId };
+                        }
                         return (
                             <span>
-                                {data.parentId ? (
+                                {/* {data.parentId ? (
                                     <Link
                                         to={{
                                             pathname: "copy/modify",
@@ -267,9 +286,12 @@ export default function ProductList() {
                                     </Link>
                                 ) : (
                                     <ModifyBtn
-                                        carry={{ editData: data, isDraft }}
+                                        carry={{ editData: newData, isDraft }}
                                     />
-                                )}
+                                )} */}
+                                <ModifyBtn
+                                    carry={{ editData: newData, isDraft }}
+                                />
                                 <DangerBtn
                                     onConfirm={moveIt(data)}
                                     {...btnProps}
@@ -279,9 +301,12 @@ export default function ProductList() {
                     },
                 },
             ];
+            if (cacheRef.current?.status !== undefined) {
+                cols.splice(7, 1); //隐藏上架列
+            }
         } else {
             opts = platformOptions;
-            if (cacheRef.current?.status !== 101) {
+            if (cacheRef.current?.isUp !== 1) {
                 let act = {
                     title: "操作",
                     dataIndex: "sort",
@@ -300,10 +325,11 @@ export default function ProductList() {
                 };
                 cols.push(act);
             }
+            cols.splice(3, 4); //隐藏售价、库存、销量、排序
         }
         return [opts, cols];
         // eslint-disable-next-line
-    }, [queryType, cacheRef.current?.status, datas]);
+    }, [queryType, cacheRef.current?.status, datas, cacheRef.current?.isUp]);
 
     return (
         <Wrapper>
@@ -344,7 +370,10 @@ export default function ProductList() {
                         </Item>
                     </Col>
                     <Col span={5}>
-                        <Item label="状态" name="status">
+                        <Item
+                            label="状态"
+                            name={queryType == 1 ? "status" : "isUp"}
+                        >
                             <Select
                                 placeholder="点击选择"
                                 options={selectOptions}
@@ -417,7 +446,7 @@ export default function ProductList() {
                 pagination={pageInfo}
                 columns={columns}
                 loading={loading}
-                rowKey="id"
+                rowKey={(data) => data.id || data.workId}
             />
         </Wrapper>
     );

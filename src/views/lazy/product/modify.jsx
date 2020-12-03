@@ -7,6 +7,8 @@ import Specify from "../../../components/forms/product/specify";
 import BaseInfo from "../../../components/forms/product/base";
 import OtherInfo from "../../../components/forms/product/other";
 import RichTextEditor from "../../../components/richTextEditor";
+import { useSelector } from "react-redux";
+
 const Lead = styled.div`
     font-size: 18px;
     color: blue;
@@ -44,7 +46,7 @@ export default function ModifyProduct({ location, history }) {
     const editorRef = useRef();
     const [detail, setDetail] = useState();
     const [loading, setLoading] = useState(false);
-
+    const curUser = useSelector((s) => s.admin.info);
     useEffect(() => {
         if (!isEdit) return;
         setLoading(true);
@@ -85,10 +87,12 @@ export default function ModifyProduct({ location, history }) {
                 : await api.edit(editData.id, params)
             : await api.add(params);
         if (res.code) return message.error(res.msg);
-        //以前有工作流，现在不用审核，直接调接口
-        res = await workApi.verify({ id: res.data, status: 1 });
+        if (curUser.roleType == -1 || curUser.roleType == 0) {
+            //以前有工作流，现在不用审核，直接调接口
+            res = await workApi.verify({ id: res.data, status: 1 });
+            if (res.code) return message.error(res.msg || "审核接口 报错");
+        }
         setLoading(false);
-        if (res.code) return message.error(res.msg || "审核接口 报错");
         message.success("操作成功", history.goBack);
     };
     const onSave = async () => {

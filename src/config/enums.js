@@ -51,3 +51,12 @@ export const couponTypes = ['打折', '满减', '立减']
 
 /** 优惠卷使用范围 值为index */
 export const couponScopes = ['全场通用', '部分商品']
+
+/** 支付方式 值为index */
+export const payTypes = ['', '微信支付', '支付宝支付', '集采分支付', '线下支付']
+
+/** 订单状态 值为index */
+export const orderStatus = ['已取消', '待付款', '待发货', '待收货', '待评价', '售后/退款', '已完成', '待自提', '已退款']
+
+/** 角色状态 */
+export const RoleType = [{ name: '最高管理员', value: -1 }, { name: '平台', value: 0 }, { name: '门店', value: 1 }, { name: '供应商', value: 2 }]

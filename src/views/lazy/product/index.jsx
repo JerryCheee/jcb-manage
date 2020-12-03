@@ -188,10 +188,11 @@ export default function ProductList() {
     const getData = async (params) => {
         setLoading(true);
         params.queryType = typeAndStatus.queryType;
-        let res =
-            params.status === 3
-                ? await api.getDraftList(enhancedSimplify(params))
-                : await api.getList(enhancedSimplify(params));
+        // let res =
+        //     params.status === 3
+        //         ? await api.getDraftList(enhancedSimplify(params))
+        //         : await api.getList(enhancedSimplify(params));
+        let res = await api.getList(simplify(params));
         cacheRef.current = params;
         setLoading(false);
         if (res.code) {
@@ -200,7 +201,12 @@ export default function ProductList() {
         }
         setDatas(res.data.records);
         let { current, pageSize } = params;
-        setPageInfo((s) => ({ current, pageSize, total: res.data.total }));
+        setPageInfo((s) => ({
+            ...s,
+            current,
+            pageSize,
+            total: res.data.total,
+        }));
     };
 
     const handleTableChange = (
@@ -281,6 +287,7 @@ export default function ProductList() {
                     <div>分类:{data.className}</div>
                     <div>品牌:{t}</div>
                     {getSource(data, typeAndStatus.queryType)}
+                    {/* <div>类型:{data.productType == 1 ? "代理" : "自营"}</div> */}
                 </div>
             ),
         },
@@ -470,7 +477,7 @@ export default function ProductList() {
                 onChange={handleTableChange}
                 pagination={pageInfo}
                 columns={columns}
-                rowKey="id"
+                rowKey={(data) => data.id || data.workId}
             />
         </Wrapper>
     );

@@ -294,6 +294,9 @@ function ProductBase({ defo, target }, ref) {
                 <Item hidden name="tags">
                     <Input />
                 </Item>
+                <Item hidden name="parentId">
+                    <Input />
+                </Item>
                 <Item
                     noStyle
                     shouldUpdate={(pre, cur) => pre.brandId !== cur.brandId}

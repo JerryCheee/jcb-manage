@@ -76,7 +76,7 @@ export default function SotreList() {
                 return (
                     <>
                         <ModifyBtn carry={{ editData: data }} />
-                        <DangerBtn onComfirm={deleSome([data.id])} />
+                        {/* <DangerBtn onComfirm={deleSome([data.id])} /> */}
                     </>
                 );
             },
